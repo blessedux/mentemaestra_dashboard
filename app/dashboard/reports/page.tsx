@@ -6,18 +6,14 @@ import { Download, ExternalLink, FileText } from "lucide-react"
 import Link from "next/link"
 
 export default async function ReportsPage() {
+  // NO AUTH - Fetch all reports without user filter
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) return null
-
-  // Fetch all reports for the client
+  
+  // Fetch all reports (no user filter for development)
   const { data: reports } = await supabase
     .from("reports")
     .select("*, websites(name)")
-    .eq("client_id", user.id)
+    // .eq("client_id", user.id) // Commented out for development
     .order("created_at", { ascending: false })
 
   const getReportTypeBadge = (type: string) => {

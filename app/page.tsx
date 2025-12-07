@@ -9,9 +9,10 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (user) {
-    redirect("/dashboard")
-  }
+  // TEMPORARILY BYPASSING AUTH FOR DEVELOPMENT
+  // if (user) {
+  //   redirect("/projects")
+  // }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-background to-muted p-6">

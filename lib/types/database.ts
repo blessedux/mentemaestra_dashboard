@@ -11,7 +11,9 @@ export interface Website {
   client_id: string
   url: string
   name: string
+  version?: string
   created_at: string
+  updated_at?: string
 }
 
 export interface Metric {
@@ -46,6 +48,7 @@ export interface Ticket {
   description?: string
   status: "open" | "in-progress" | "done"
   priority: "low" | "medium" | "high"
+  requested_by?: string
   created_at: string
   updated_at: string
 }

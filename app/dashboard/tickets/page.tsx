@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Plus, TicketIcon } from "lucide-react"
 import Link from "next/link"
-import { TicketCard } from "@/components/tickets/ticket-card"
+import { TicketTableWrapper } from "@/components/tickets/ticket-table-wrapper"
+import type { TicketWithWebsite } from "@/components/ui/ticket-management-table"
 
 export default async function TicketsPage() {
   const supabase = await createClient()
@@ -11,19 +12,23 @@ export default async function TicketsPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) return null
+  // TEMPORARILY BYPASSING AUTH FOR DEVELOPMENT
+  // if (!user) return null
 
   // Fetch all tickets for the client
+  // TEMPORARILY: Fetch all tickets without filtering by user
   const { data: tickets } = await supabase
     .from("tickets")
-    .select("*, websites(name)")
-    .eq("client_id", user.id)
+    .select("*, websites(name, url)")
+    // .eq("client_id", user.id) // Commented out for development
     .order("created_at", { ascending: false })
 
-  // Organize tickets by status
-  const openTickets = tickets?.filter((t) => t.status === "open") || []
-  const inProgressTickets = tickets?.filter((t) => t.status === "in-progress") || []
-  const doneTickets = tickets?.filter((t) => t.status === "done") || []
+  // Transform tickets to match the expected format
+  const formattedTickets: TicketWithWebsite[] =
+    tickets?.map((ticket) => ({
+      ...ticket,
+      websites: ticket.websites ? { name: ticket.websites.name, url: ticket.websites.url } : null,
+    })) || []
 
   return (
     <div className="space-y-8">
@@ -40,7 +45,7 @@ export default async function TicketsPage() {
         </Button>
       </div>
 
-      {tickets && tickets.length === 0 ? (
+      {formattedTickets.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <TicketIcon className="h-12 w-12 text-muted-foreground mb-4" />
@@ -54,61 +59,7 @@ export default async function TicketsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-6 md:grid-cols-3">
-          {/* Open Column */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Open</span>
-                <span className="text-sm font-normal text-muted-foreground">{openTickets.length}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {openTickets.map((ticket) => (
-                <TicketCard key={ticket.id} ticket={ticket} />
-              ))}
-              {openTickets.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-4">No open tickets</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* In Progress Column */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>In Progress</span>
-                <span className="text-sm font-normal text-muted-foreground">{inProgressTickets.length}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {inProgressTickets.map((ticket) => (
-                <TicketCard key={ticket.id} ticket={ticket} />
-              ))}
-              {inProgressTickets.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-4">No tickets in progress</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Done Column */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Done</span>
-                <span className="text-sm font-normal text-muted-foreground">{doneTickets.length}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {doneTickets.map((ticket) => (
-                <TicketCard key={ticket.id} ticket={ticket} />
-              ))}
-              {doneTickets.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-4">No completed tickets</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        <TicketTableWrapper initialTickets={formattedTickets} />
       )}
     </div>
   )

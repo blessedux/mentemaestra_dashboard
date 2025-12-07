@@ -9,18 +9,13 @@ import { notFound } from "next/navigation"
 export default async function ReportDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) return null
-
-  // Fetch the specific report
+  
+  // NO AUTH - Fetch the specific report without user filter
   const { data: report } = await supabase
     .from("reports")
     .select("*, websites(name, url)")
     .eq("id", id)
-    .eq("client_id", user.id)
+    // .eq("client_id", user.id) // Commented out for development
     .single()
 
   if (!report) {

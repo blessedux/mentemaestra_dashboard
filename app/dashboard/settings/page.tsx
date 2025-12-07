@@ -35,18 +35,15 @@ export default function SettingsPage() {
   }, [])
 
   const fetchData = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return
+    // NO AUTH - Fetch data without user filter
+    // Fetch client data (use first client or create dummy)
+    const { data: clientData } = await supabase.from("clients").select("*").limit(1).single()
+    setClient(clientData || { company_name: "Dev Company" })
+    setCompanyName(clientData?.company_name || "Dev Company")
 
-    // Fetch client data
-    const { data: clientData } = await supabase.from("clients").select("*").eq("id", user.id).single()
-    setClient(clientData)
-    setCompanyName(clientData?.company_name || "")
-
-    // Fetch websites
-    const { data: websitesData } = await supabase.from("websites").select("*").eq("client_id", user.id)
+    // Fetch websites (all websites for development)
+    const { data: websitesData } = await supabase.from("websites").select("*")
+    // .eq("client_id", user.id) // Commented out for development
     setWebsites(websitesData || [])
 
     // Fetch team members
@@ -60,12 +57,8 @@ export default function SettingsPage() {
     e.preventDefault()
     setIsSaving(true)
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return
-
-    const { error } = await supabase.from("clients").update({ company_name: companyName }).eq("id", user.id)
+    // NO AUTH - Use dummy client ID
+    const { error } = await supabase.from("clients").update({ company_name: companyName }).eq("id", client?.id || "dev-client-id")
 
     if (!error) {
       setSuccessMessage("Company information updated successfully")
@@ -79,15 +72,11 @@ export default function SettingsPage() {
     e.preventDefault()
     setIsSaving(true)
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return
-
+    // NO AUTH - Use dummy client ID
     const { data, error } = await supabase
       .from("websites")
       .insert({
-        client_id: user.id,
+        client_id: client?.id || "dev-client-id",
         url: newWebsiteUrl,
         name: newWebsiteName,
       })
@@ -119,15 +108,11 @@ export default function SettingsPage() {
     e.preventDefault()
     setIsSaving(true)
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return
-
+    // NO AUTH - Use dummy client ID
     const { data, error } = await supabase
       .from("team_members")
       .insert({
-        client_id: user.id,
+        client_id: client?.id || "dev-client-id",
         email: newMemberEmail,
         name: newMemberName,
         role: "member",

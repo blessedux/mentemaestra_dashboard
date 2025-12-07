@@ -18,15 +18,11 @@ export default function BrandAssetsPage() {
   }, [])
 
   const fetchAssets = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return
-
+    // NO AUTH - Fetch all assets without user filter
     const { data } = await supabase
       .from("brand_assets")
       .select("*")
-      .eq("client_id", user.id)
+      // .eq("client_id", user.id) // Commented out for development
       .order("created_at", { ascending: false })
 
     setAssets(data || [])

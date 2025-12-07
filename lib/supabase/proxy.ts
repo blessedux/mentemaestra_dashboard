@@ -25,26 +25,30 @@ export async function updateSession(request: NextRequest) {
     },
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // TEMPORARILY BYPASSING AUTH FOR DEVELOPMENT
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser()
 
-  // Redirect to login if accessing dashboard without authentication
-  if (request.nextUrl.pathname.startsWith("/dashboard") && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/auth/login"
-    return NextResponse.redirect(url)
-  }
+  // // Redirect to login if accessing dashboard without authentication
+  // if (request.nextUrl.pathname.startsWith("/dashboard") && !user) {
+  //   const url = request.nextUrl.clone()
+  //   url.pathname = "/auth/login"
+  //   return NextResponse.redirect(url)
+  // }
 
-  // Redirect to dashboard if accessing auth pages while authenticated
-  if (
-    (request.nextUrl.pathname.startsWith("/auth/login") || request.nextUrl.pathname.startsWith("/auth/sign-up")) &&
-    user
-  ) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/dashboard"
-    return NextResponse.redirect(url)
-  }
+  // // Redirect to projects if accessing auth pages while authenticated
+  // if (
+  //   (request.nextUrl.pathname.startsWith("/auth/login") || request.nextUrl.pathname.startsWith("/auth/sign-up")) &&
+  //   user
+  // ) {
+  //   const url = request.nextUrl.clone()
+  //   url.pathname = "/projects"
+  //   return NextResponse.redirect(url)
+  // }
+
+  // Redirect to projects if accessing dashboard without a selected project (client-side check)
+  // Note: We can't check localStorage in middleware, so this is handled client-side in dashboard layout
 
   return supabaseResponse
 }

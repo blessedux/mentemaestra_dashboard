@@ -26,18 +26,15 @@ export default function TicketDetailPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) return
-      setUserId(user.id)
+      // NO AUTH - Fetch ticket without user filter
+      setUserId("dev-user-id") // Dummy ID for development
 
       // Fetch ticket
       const { data: ticketData } = await supabase
         .from("tickets")
         .select("*, websites(name, url)")
         .eq("id", id)
-        .eq("client_id", user.id)
+        // .eq("client_id", user.id) // Commented out for development
         .single()
 
       setTicket(ticketData)

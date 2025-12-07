@@ -27,12 +27,9 @@ export default function NewTicketPage() {
 
   useEffect(() => {
     async function fetchWebsites() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) return
-
-      const { data } = await supabase.from("websites").select("*").eq("client_id", user.id)
+      // NO AUTH - Fetch all websites
+      const { data } = await supabase.from("websites").select("*")
+      // .eq("client_id", user.id) // Commented out for development
       setWebsites(data || [])
     }
     fetchWebsites()
@@ -44,13 +41,9 @@ export default function NewTicketPage() {
     setError(null)
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) throw new Error("Not authenticated")
-
+      // NO AUTH - Use a dummy client_id for development
       const { error: insertError } = await supabase.from("tickets").insert({
-        client_id: user.id,
+        client_id: "dev-client-id", // Dummy ID for development
         title,
         description,
         priority,
