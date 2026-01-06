@@ -26,7 +26,7 @@ export default async function ErrorPage({
                 <p className="text-sm text-muted-foreground">An authentication error occurred.</p>
               )}
               <Button asChild>
-                <Link href="/auth/login">Back to Login</Link>
+                <Link href="/">Back to Home</Link>
               </Button>
             </CardContent>
           </Card>

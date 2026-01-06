@@ -7,6 +7,7 @@ import { LayoutDashboard, FileText, Ticket, Settings, Palette, LogOut, Globe, We
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useSelectedProject } from "@/lib/hooks/use-selected-project"
+import { usePrivy } from "@privy-io/react-auth"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -22,12 +23,23 @@ export function DashboardNav() {
   const pathname = usePathname()
   const router = useRouter()
   const { selectedProjectId } = useSelectedProject()
+  const { logout } = usePrivy()
 
   const handleSignOut = async () => {
-    // NO AUTH - Just clear localStorage and stay on dashboard
-    localStorage.removeItem("selectedProjectId")
-    // Don't redirect - just clear the project selection
-    // router.push("/auth/login") // Commented out for development
+    try {
+      // Clear local storage
+      localStorage.removeItem("selectedProjectId")
+      
+      // Logout from Privy
+      await logout()
+      
+      // Redirect to home page
+      router.push("/")
+    } catch (error) {
+      console.error("Logout error:", error)
+      // Even if logout fails, redirect to home
+      router.push("/")
+    }
   }
 
   const handleSwitchProject = () => {

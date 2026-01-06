@@ -18,7 +18,7 @@ export default function SignUpSuccessPage() {
                 can log in to access your dashboard.
               </p>
               <Button asChild>
-                <Link href="/auth/login">Back to Login</Link>
+                <Link href="/">Back to Home</Link>
               </Button>
             </CardContent>
           </Card>

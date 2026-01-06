@@ -8,7 +8,10 @@ ALTER TABLE public.tickets
 ADD COLUMN IF NOT EXISTS requested_by TEXT;
 
 -- Create trigger to update websites.updated_at
-CREATE TRIGGER IF NOT EXISTS update_websites_updated_at
+-- Drop trigger if it exists first (PostgreSQL doesn't support IF NOT EXISTS for triggers)
+DROP TRIGGER IF EXISTS update_websites_updated_at ON public.websites;
+
+CREATE TRIGGER update_websites_updated_at
 BEFORE UPDATE ON public.websites
 FOR EACH ROW
 EXECUTE FUNCTION public.update_updated_at_column();
