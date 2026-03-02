@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { usePrivy } from "@privy-io/react-auth"
-import { Loader2 } from "lucide-react"
+import { Spinner } from "@/components/ui/spinner"
 import { PrivyWrapper } from "@/components/auth/privy-wrapper"
 
 function LoginPageContent() {
@@ -11,18 +11,22 @@ function LoginPageContent() {
   const { ready, authenticated, login } = usePrivy()
 
   useEffect(() => {
-    // Redirect to dashboard if already authenticated
+    // Redirect when already authenticated: go to projects to select org, or dashboard if one is selected
     if (ready && authenticated) {
-      router.replace("/dashboard")
+      const selectedProjectId = typeof window !== "undefined" ? localStorage.getItem("selectedProjectId") : null
+      if (selectedProjectId) {
+        router.replace("/dashboard")
+      } else {
+        router.replace("/projects")
+      }
     }
   }, [ready, authenticated, router])
 
   // Auto-trigger login modal when page loads and user is not authenticated
   useEffect(() => {
     if (ready && !authenticated) {
-      // Small delay to ensure UI is ready
       const timer = setTimeout(() => {
-        login().catch((error: unknown) => {
+        Promise.resolve(login()).catch((error: unknown) => {
           console.error("Login error:", error)
         })
       }, 100)
@@ -34,8 +38,8 @@ function LoginPageContent() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Redirecting to dashboard...</p>
+          <Spinner size={32} />
+          <p className="text-sm text-muted-foreground">Redirecting...</p>
         </div>
       </div>
     )
@@ -45,7 +49,7 @@ function LoginPageContent() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Spinner size={32} />
           <p className="text-sm text-muted-foreground">Loading...</p>
         </div>
       </div>
@@ -55,7 +59,7 @@ function LoginPageContent() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Spinner size={32} />
         <p className="text-sm text-muted-foreground">Opening login...</p>
       </div>
     </div>
